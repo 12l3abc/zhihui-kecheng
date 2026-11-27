@@ -150,6 +150,13 @@ online-course-ai/
 
 ## 5. 快速开始
 
+代码托管在私有仓库，先配置 GitHub SSH Key，再克隆：
+
+```bash
+git clone git@github.com:12l3abc/zhihui-kecheng.git
+cd zhihui-kecheng
+```
+
 ### 5.1 环境要求
 
 - JDK 17 或更高版本
