@@ -1,0 +1,1170 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智绘课成</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+SC:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      background: #f5f4f0;
+      color: #000;
+    }
+    body.menu-open { overflow: hidden; }
+
+    /* ===== BACKGROUND VIDEO ===== */
+    .bg-video {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    /* ===== PAGE WRAPPER ===== */
+    .page-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px;
+    }
+    @media (min-width: 640px) { .navbar { padding: 24px 24px; } }
+    @media (min-width: 768px) { .navbar { padding: 24px 48px; } }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: #000;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .nav-left:hover { opacity: 0.6; }
+    .nav-left svg { width: 20px; height: 20px; stroke-width: 1.5; }
+    .nav-left span {
+      font-size: 14px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    @media (max-width: 639px) { .nav-left span { display: none; } }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #000;
+      transition: opacity 0.3s ease;
+    }
+    .nav-right:hover { opacity: 0.6; }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #000;
+    }
+    .nav-right span {
+      font-size: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      flex: 1;
+      position: relative;
+      margin: 0 20px;
+    }
+    @media (min-width: 640px) { .main { margin: 0 24px; } }
+    @media (min-width: 768px) { .main { margin: 0 48px; } }
+
+    /* ===== VERTICAL BORDER LINES ===== */
+    .vline-left, .vline-right {
+      display: none;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+      pointer-events: none;
+    }
+    @media (min-width: 768px) {
+      .vline-left, .vline-right { display: flex; }
+      .vline-left { left: 0; }
+      .vline-right { right: 0; }
+    }
+    .vline-seg { width: 1px; height: 15%; background: rgba(0,0,0,0.2); }
+    .vline-plus { font-size: 12px; color: rgba(0,0,0,0.4); padding: 8px 0; }
+    .vline-flex { flex: 1; width: 1px; background: rgba(0,0,0,0.2); }
+
+    /* ===== DECORATIVE GLASS RECTANGLES ===== */
+    .glass-grid {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      grid-template-columns: 110px 110px;
+      grid-template-rows: 110px 110px 110px;
+      gap: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+    @media (min-width: 768px) { .glass-grid { display: grid; } }
+    .glass-square {
+      width: 110px;
+      height: 110px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.4);
+      box-shadow:
+        inset 0 2px 20px rgba(255,255,255,0.5),
+        inset 0 -2px 14px rgba(0,0,0,0.2),
+        0 0 20px rgba(255,255,255,0.15),
+        0 0 40px rgba(255,255,255,0.05);
+    }
+    .glass-square.pos-1 { grid-column: 1; grid-row: 1; }
+    .glass-square.pos-2 { grid-column: 1; grid-row: 2; }
+    .glass-square.pos-3 { grid-column: 2; grid-row: 3; }
+
+    /* ===== LARGE BACKGROUND TEXT ===== */
+    .ghost-text {
+      position: absolute;
+      top: 2%;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 12vw;
+      font-weight: 400;
+      line-height: 0.85;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transform: scaleY(1.15);
+      transform-origin: center;
+      pointer-events: none;
+      user-select: none;
+      overflow: hidden;
+      z-index: 1;
+      background: radial-gradient(83.65% 627.96% at 7.96% 53.9%, rgba(90,90,90,0.6) 0%, rgba(90,90,90,0.05) 52.41%, rgba(90,90,90,0.6) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @media (min-width: 640px) { .ghost-text { font-size: 14vw; } }
+    @media (min-width: 768px) { .ghost-text { font-size: 16vw; } }
+
+    /* ===== BOTTOM 2-COLUMN CONTENT ===== */
+    .bottom-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 8px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      z-index: 10;
+    }
+    @media (min-width: 640px) { .bottom-content { padding: 32px 16px 40px; gap: 40px; } }
+    @media (min-width: 768px) {
+      .bottom-content {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding: 40px 32px 48px;
+        gap: 48px;
+      }
+    }
+
+    /* Left column */
+    .left-col { max-width: 384px; }
+    .left-heading {
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    @media (min-width: 640px) { .left-heading { font-size: 24px; color: #000; } }
+    @media (min-width: 768px) { .left-heading { font-size: 30px; } }
+    @media (min-width: 1024px) { .left-heading { font-size: 36px; } }
+    .left-heading .line1 { display: block; }
+    .left-heading .line2 { display: block; margin-top: 2px; }
+
+    .left-paragraph {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.7);
+      max-width: 280px;
+    }
+    @media (min-width: 640px) {
+      .left-paragraph { font-size: 14px; color: rgba(0,0,0,0.6); margin-top: 16px; }
+    }
+
+    /* Chamfered button */
+    .chamfer-btn {
+      position: relative;
+      margin-top: 24px;
+      width: 220px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,0,0,0.2);
+      color: #000;
+      font-family: inherit;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+      transition: opacity 0.3s ease;
+    }
+    @media (min-width: 640px) {
+      .chamfer-btn {
+        width: 260px;
+        height: 48px;
+        font-size: 14px;
+        padding: 0 24px;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+      }
+    }
+    .chamfer-btn:hover { opacity: 0.7; }
+    .chamfer-btn svg { width: 16px; height: 16px; }
+    .chamfer-btn-border {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Right column - Glass card */
+    .right-col {
+      max-width: 320px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      padding: 20px;
+    }
+    @media (min-width: 640px) { .right-col { padding: 24px; } }
+    @media (min-width: 768px) { .right-col { padding: 32px; } }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    @media (min-width: 768px) { .card-header { padding-bottom: 16px; } }
+    .card-title { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; }
+    @media (min-width: 640px) { .card-title { font-size: 18px; } }
+    @media (min-width: 768px) { .card-title { font-size: 20px; } }
+    .card-num { font-size: 12px; color: rgba(0,0,0,0.4); }
+
+    .findings { margin-top: 16px; display: flex; flex-direction: column; gap: 16px; }
+    @media (min-width: 768px) { .findings { margin-top: 20px; gap: 20px; } }
+    .finding-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    @media (min-width: 768px) { .finding-title { font-size: 16px; } }
+    .finding-desc {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(0,0,0,0.5);
+    }
+    @media (min-width: 768px) { .finding-desc { font-size: 14px; margin-top: 6px; } }
+
+    .waveform { margin-top: 20px; text-align: center; }
+    @media (min-width: 768px) { .waveform { margin-top: 24px; } }
+    .waveform svg { width: 100%; }
+
+    /* ===== MOBILE MENU ===== */
+    .menu-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+    }
+    .menu-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0s linear 0s;
+    }
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      max-width: 380px;
+      background: #f5f4f0;
+      z-index: 101;
+      transform: translateX(-100%);
+      transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+    }
+    @media (min-width: 640px) { .menu-panel { padding: 24px 40px; } }
+    .menu-panel.open { transform: translateX(0); }
+
+    .menu-close {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      color: #000;
+      margin-bottom: 48px;
+      padding: 0;
+    }
+    .menu-close svg { width: 20px; height: 20px; stroke-width: 1.5; }
+
+    .menu-links { list-style: none; flex: 1; }
+    .menu-links li { border-bottom: 1px solid rgba(0,0,0,0.1); position: relative; }
+    .menu-links a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    @media (min-width: 640px) { .menu-links a { font-size: 30px; } }
+    .menu-links a:hover { transform: translateX(8px); }
+    .menu-links a svg {
+      width: 16px;
+      height: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .menu-links a:hover svg { opacity: 1; }
+
+    .menu-card {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .menu-links li:hover .menu-card { max-height: 100px; }
+    .menu-card-title { font-size: 13px; font-weight: 500; color: #000; padding-top: 4px; }
+    .menu-card-desc { font-size: 12px; color: rgba(0,0,0,0.5); margin-top: 2px; padding-bottom: 12px; }
+
+    .menu-bottom {
+      border-top: 1px solid rgba(0,0,0,0.1);
+      padding-top: 24px;
+      padding-bottom: 32px;
+    }
+    .menu-bottom-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(0,0,0,0.4);
+      margin-bottom: 12px;
+    }
+    .menu-bottom-email {
+      font-size: 14px;
+      color: rgba(0,0,0,0.7);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .menu-bottom-email:hover { color: #000; }
+
+    /* ===== LOGIN MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s ease, visibility 0s linear 0s;
+    }
+    .modal {
+      position: relative;
+      width: 90%;
+      max-width: 400px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 16px;
+      padding: 32px 28px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: rgba(0,0,0,0.5);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.5); color: #000; }
+    .modal h2 {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      color: #000;
+      letter-spacing: -0.02em;
+    }
+    .modal-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(0,0,0,0.05);
+      border-radius: 8px;
+      padding: 4px;
+    }
+    .modal-tab {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+      color: rgba(0,0,0,0.5);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .modal-tab.active {
+      background: rgba(255,255,255,0.8);
+      color: #000;
+      font-weight: 500;
+    }
+    .modal input[type="text"],
+    .modal input[type="password"],
+    .modal input[type="tel"],
+    .modal input[type="email"] {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.6);
+      font-family: inherit;
+      font-size: 14px;
+      color: #000;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .modal input:focus { border-color: rgba(0,0,0,0.3); }
+    .modal input::placeholder { color: rgba(0,0,0,0.4); }
+    .modal-remember {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: rgba(0,0,0,0.6);
+      cursor: pointer;
+    }
+    .modal-remember input { width: auto; margin: 0; }
+    .modal-role {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .modal-role label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 8px;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: all .25s cubic-bezier(.22,.8,.24,1);
+      background: rgba(255,255,255,0.3);
+      backdrop-filter: blur(6px);
+      user-select: none;
+    }
+    .modal-role label svg {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      transition: transform .25s ease;
+    }
+    .modal-role label:hover {
+      border-color: rgba(0,0,0,0.3);
+      color: rgba(0,0,0,0.8);
+      background: rgba(255,255,255,0.45);
+    }
+    .modal-role label:hover svg { transform: scale(1.1); }
+    .modal-role input[type="radio"] { display: none; }
+    .modal-role label:has(input:checked) {
+      background: rgba(0,0,0,0.88);
+      color: #fff;
+      border-color: rgba(0,0,0,0.88);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+    .modal-role label:has(input:checked) svg {
+      transform: scale(1.05);
+    }
+    .modal-submit {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0,0,0,0.88);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .modal-submit:hover { background: #000; transform: translateY(-1px); }
+    .modal-msg {
+      margin-top: 12px;
+      font-size: 13px;
+      text-align: center;
+      min-height: 18px;
+    }
+    .modal-msg.error { color: #c0392b; }
+    
+    
+    
+    
+
+    /* ===== DARK MODE STYLES ===== */
+    
+    
+    
+    
+
+    
+
+    
+    
+    
+
+    
+
+    
+    
+
+    
+    
+    @media (min-width: 640px) {
+      
+    }
+
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
+
+    /* ===== DARK MODE ===== */
+    /* 双视频叠加 - GPU加速 + 平滑过渡 */
+    .bg-video-light, .bg-video-dark {
+      will-change: opacity;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    .bg-video-light { z-index: 0; opacity: 1; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    .bg-video-dark { z-index: 0; opacity: 0; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    body.dark-mode .bg-video-light { opacity: 0; }
+    body.dark-mode .bg-video-dark { opacity: 1; filter: none; }
+
+    /* 暗色遮罩层（压暗橙色花朵视频的白色背景） */
+    .dark-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      z-index: 5;
+      pointer-events: none;
+      will-change: background;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    body.dark-mode .dark-overlay {
+      background: rgba(0,0,0,0);
+    }
+
+    /* 主题切换按钮 */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #000;
+      opacity: 0.8;
+      transition: opacity 0.3s ease, background 0.3s ease;
+      position: relative;
+    }
+    .theme-toggle:hover { opacity: 0.6; background: rgba(0,0,0,0.05); }
+    .theme-toggle svg { width: 18px; height: 18px; position: absolute; }
+    .theme-toggle .icon-sun { display: block; }
+    .theme-toggle .icon-moon { display: none; }
+    body.dark-mode .theme-toggle { color: #fff; }
+    body.dark-mode .theme-toggle:hover { background: rgba(255,255,255,0.1); }
+    body.dark-mode .theme-toggle .icon-sun { display: none; }
+    body.dark-mode .theme-toggle .icon-moon { display: block; }
+
+    /* 全局颜色过渡 */
+    .nav-left, .nav-right, .left-heading, .left-paragraph, .chamfer-btn,
+    .card-title, .card-num, .finding-title, .finding-desc, .theme-toggle,
+    .right-col, .ghost-text, .border-line, .border-plus, .glass-rect,
+    .mobile-menu-panel, .mobile-menu-link, .mobile-menu-close, .mobile-menu-email {
+      transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  fill 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  stroke 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 深色模式输入框 */
+    body.dark-mode .modal input[type="text"],
+    body.dark-mode .modal input[type="password"],
+    body.dark-mode .modal input[type="tel"],
+    body.dark-mode .modal input[type="email"] {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    body.dark-mode .modal input::placeholder { color: rgba(255,255,255,0.5); }
+    body.dark-mode .modal input:focus { border-color: rgba(255,255,255,0.5); }
+
+    /* 深色模式文字颜色 */
+    body.dark-mode .nav-left { color: #fff; }
+    body.dark-mode .nav-left svg { stroke: #fff; }
+    body.dark-mode .nav-right { color: #fff; }
+    body.dark-mode .nav-dot { background: #fff; }
+    body.dark-mode .left-heading { color: #fff; }
+    body.dark-mode .left-paragraph { color: rgba(255,255,255,0.7); }
+    body.dark-mode .chamfer-btn { color: #fff; border-color: rgba(255,255,255,0.5); }
+    body.dark-mode .chamfer-btn:hover { background: rgba(255,255,255,0.1); }
+
+    /* 深色模式右侧玻璃卡片 */
+    body.dark-mode .right-col {
+      background: rgba(20,20,20,0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    body.dark-mode .card-title { color: #fff; }
+    body.dark-mode .card-num { color: rgba(255,255,255,0.4); }
+    body.dark-mode .finding-title { color: #fff; }
+    body.dark-mode .finding-desc { color: rgba(255,255,255,0.6); }
+    body.dark-mode .right-col hr { background: rgba(255,255,255,0.1); }
+    body.dark-mode .waveform-path { stroke: rgba(255,255,255,0.6); }
+
+    /* 深色模式幽灵文字 */
+    body.dark-mode .ghost-text {
+      background: radial-gradient(83.65% 627.96% at 7.96% 53.9%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.05) 52.41%, rgba(255,255,255,0.5) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 深色模式垂直边框线 */
+    body.dark-mode .border-line { background: rgba(255,255,255,0.2); }
+    body.dark-mode .border-plus { color: rgba(255,255,255,0.4); }
+
+    /* 深色模式装饰玻璃矩形 */
+    body.dark-mode .glass-rect {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* 深色模式移动端菜单 */
+    body.dark-mode .mobile-menu-panel { background: #1a1a1a; }
+    body.dark-mode .mobile-menu-link { color: #fff; border-color: rgba(255,255,255,0.1); }
+    body.dark-mode .mobile-menu-close { color: #fff; }
+    body.dark-mode .mobile-menu-email { color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND VIDEO -->
+<!-- 浅色模式视频 -->
+<video id="bgVideoLight" class="bg-video bg-video-light" autoplay muted loop playsinline preload="auto">
+  <source src="terra-nova-bg.mp4" type="video/mp4">
+</video>
+<!-- 深色模式视频（橙色花朵，FadingVideo效果） -->
+<video id="bgVideoDark" class="bg-video bg-video-dark" autoplay muted playsinline preload="auto">
+  <source src="orange-flower-bg.mp4" type="video/mp4">
+</video>
+<!-- 暗色遮罩层 -->
+<div class="dark-overlay"></div>
+
+
+<div class="page-wrapper">
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-left" onclick="openMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>Menu</span>
+    </div>
+
+    <div class="theme-toggle" onclick="toggleTheme()" title="切换深色模式">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </div>
+    <div class="nav-right" onclick="openLogin()">
+      <div class="nav-dot"></div>
+      <span>开始使用</span>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <!-- Vertical border lines -->
+    <div class="vline-left">
+      <div class="vline-seg"></div>
+      <div class="vline-plus">+</div>
+      <div class="vline-flex"></div>
+      <div class="vline-plus">+</div>
+      <div class="vline-seg"></div>
+    </div>
+    <div class="vline-right">
+      <div class="vline-seg"></div>
+      <div class="vline-plus">+</div>
+      <div class="vline-flex"></div>
+      <div class="vline-plus">+</div>
+      <div class="vline-seg"></div>
+    </div>
+
+    <!-- Decorative glass rectangles -->
+    <div class="glass-grid">
+      <div class="glass-square pos-1"></div>
+      <div class="glass-square pos-2"></div>
+      <div class="glass-square pos-3"></div>
+    </div>
+
+    <!-- Large background text -->
+    <div class="ghost-text">Online Teaching</div>
+
+    <!-- Bottom 2-column content -->
+    <div class="bottom-content">
+      <!-- Left column -->
+      <div class="left-col">
+        <h1 class="left-heading">
+          <span class="line1">让知识动起来</span>
+          <span class="line2">一帧一帧</span>
+        </h1>
+        <p class="left-paragraph">基于大模型的课件生成与教学管理平台，输入知识点即可自动生成结构化动画课件大纲与教学脚本。</p>
+        <button class="chamfer-btn" onclick="openLogin()">
+          <span>开始使用</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <!-- Right column - Glass card -->
+      <div class="right-col">
+        <div class="card-header">
+          <div class="card-title">最新动态</div>
+          <div class="card-num">//02</div>
+        </div>
+        <div class="findings">
+          <div>
+            <div class="finding-title">AI课件生成 09.17</div>
+            <div class="finding-desc">输入知识点，大模型自动生成结构化课件大纲、教学脚本与动画分镜，支持一键导出。</div>
+          </div>
+          <div>
+            <div class="finding-title">教学管理全流程 11.06</div>
+            <div class="finding-desc">班级管理、任务发布、在线作答与智能批阅，成绩分析图表自动识别薄弱知识点。</div>
+          </div>
+        </div>
+        <div class="waveform">
+          <svg viewBox="0 0 220 50" fill="none">
+            <path d="M0 30 C10 30 12 45 18 45 C24 45 26 10 34 10 C42 10 44 40 52 40 C60 40 62 5 70 5 C78 5 80 42 88 42 C96 42 98 15 106 15 C114 15 116 38 124 38 C132 38 134 20 142 20 C150 20 152 35 160 35 C168 35 170 22 178 22 C186 22 188 32 196 32 C204 32 210 28 220 28" stroke="#000" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()"></div>
+<div class="menu-panel" id="menuPanel">
+  <button class="menu-close" onclick="closeMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    Close
+  </button>
+  <ul class="menu-links">
+    <li>
+      <a onclick="closeMenu(); openLogin()">首页<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <div class="menu-card">
+        <div class="menu-card-title">首页</div>
+        <div class="menu-card-desc">返回首页，浏览平台介绍与核心功能展示</div>
+      </div>
+    </li>
+    <li>
+      <a onclick="closeMenu(); openLogin()">课件生成<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <div class="menu-card">
+        <div class="menu-card-title">AI课件生成</div>
+        <div class="menu-card-desc">输入知识点，AI自动生成动画课件大纲与教学脚本</div>
+      </div>
+    </li>
+    <li>
+      <a onclick="closeMenu(); openLogin()">教学管理<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <div class="menu-card">
+        <div class="menu-card-title">教学管理</div>
+        <div class="menu-card-desc">管理班级学生、发布教学任务、在线批阅作业</div>
+      </div>
+    </li>
+    <li>
+      <a onclick="closeMenu(); openLogin()">数据分析<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <div class="menu-card">
+        <div class="menu-card-title">数据分析</div>
+        <div class="menu-card-desc">查看学生成绩排名、统计图表与知识掌握情况</div>
+      </div>
+    </li>
+    <li>
+      <a onclick="closeMenu(); openLogin()">关于<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <div class="menu-card">
+        <div class="menu-card-title">关于智绘课成</div>
+        <div class="menu-card-desc">了解平台团队、技术背景与毕业设计项目信息</div>
+      </div>
+    </li>
+  </ul>
+  <div class="menu-bottom">
+    <div class="menu-bottom-label">联系我们</div>
+    <a class="menu-bottom-email" onclick="openLogin()">zhihuikecheng@edu.cn</a>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLogin()">&times;</button>
+    <h2 id="modalTitle">登录</h2>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tabLogin" onclick="switchTab('login')">登录</button>
+      <button class="modal-tab" id="tabRegister" onclick="switchTab('register')">注册</button>
+    </div>
+    <div id="loginForm">
+      <input type="text" id="loginUsername" placeholder="用户名">
+      <input type="password" id="loginPassword" placeholder="密码">
+      <div class="modal-role">
+        <label>
+          <input type="radio" name="loginRole" value="teacher" checked>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>教师</span>
+        </label>
+        <label>
+          <input type="radio" name="loginRole" value="student">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>学生</span>
+        </label>
+      </div>
+      <label class="modal-remember">
+        <input type="checkbox" id="rememberMe">
+        <span>自动登录（7天内免登录）</span>
+      </label>
+      <button class="modal-submit" onclick="doLogin()">登录</button>
+    </div>
+    <div id="registerForm" style="display:none">
+      <input type="text" id="regUsername" placeholder="用户名">
+      <input type="password" id="regPassword" placeholder="密码">
+      <input type="tel" id="regPhone" placeholder="手机号" maxlength="11">
+      <input type="email" id="regEmail" placeholder="邮箱">
+      <div class="modal-role">
+        <label>
+          <input type="radio" name="regRole" value="teacher" checked>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>教师</span>
+        </label>
+        <label>
+          <input type="radio" name="regRole" value="student">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>学生</span>
+        </label>
+      </div>
+      <button class="modal-submit" onclick="doRegister()">注册</button>
+    </div>
+    <div class="modal-msg" id="modalMsg"></div>
+  </div>
+</div>
+
+<script>
+// ===== THEME TOGGLE =====
+
+function openMenu() {
+  document.getElementById('menuBackdrop').classList.add('open');
+  document.getElementById('menuPanel').classList.add('open');
+  document.body.classList.add('menu-open');
+}
+function closeMenu() {
+  document.getElementById('menuBackdrop').classList.remove('open');
+  document.getElementById('menuPanel').classList.remove('open');
+  document.body.classList.remove('menu-open');
+}
+
+// ===== LOGIN / REGISTER =====
+function openLogin() {
+  document.getElementById('loginModal').classList.add('open');
+  document.getElementById('modalMsg').textContent = '';
+}
+function closeLogin() {
+  document.getElementById('loginModal').classList.remove('open');
+}
+function switchTab(tab) {
+  var isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('modalTitle').textContent = isLogin ? '登录' : '注册';
+  document.getElementById('modalMsg').textContent = '';
+}
+function doLogin() {
+  var username = document.getElementById('loginUsername').value.trim();
+  var password = document.getElementById('loginPassword').value;
+  var remember = document.getElementById('rememberMe').checked;
+  var selectedRole = document.querySelector('input[name="loginRole"]:checked').value;
+  var msg = document.getElementById('modalMsg');
+  if (!username || !password) { msg.className='modal-msg error'; msg.textContent='请输入用户名和密码'; return; }
+  msg.className='modal-msg'; msg.textContent='登录中...';
+  fetch('/api/auth/login', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username:username, password:password, role:selectedRole})
+  }).then(function(r){return r.json();}).then(function(res){
+    if (res.code === 200) {
+      var realRole = res.data.role || selectedRole;
+      var tip = (selectedRole && realRole && selectedRole !== realRole)
+        ? '账号身份为「' + (realRole==='teacher'?'教师':'学生') + '」，正在跳转...'
+        : '登录成功，正在跳转...';
+      msg.className='modal-msg success'; msg.textContent=tip;
+      localStorage.setItem('token', String(res.data.id));
+      localStorage.setItem('userInfo', JSON.stringify(res.data));
+      if (remember) {
+        var expire = Date.now() + 7 * 24 * 60 * 60 * 1000;
+        localStorage.setItem('zhkc_auto_login', JSON.stringify({
+          username: username,
+          password: password,
+          role: realRole,
+          expire: expire
+        }));
+      } else {
+        localStorage.removeItem('zhkc_auto_login');
+      }
+      setTimeout(function(){
+        window.location.href = realRole === 'teacher' ? 'course-generate.html' : 'student.html';
+      }, 500);
+    } else {
+      msg.className='modal-msg error'; msg.textContent=res.message||'登录失败';
+    }
+  }).catch(function(){
+    msg.className='modal-msg error'; msg.textContent='网络错误，请确认服务已启动';
+  });
+}
+function doRegister() {
+  var username = document.getElementById('regUsername').value.trim();
+  var password = document.getElementById('regPassword').value;
+  var phone = document.getElementById('regPhone').value.trim();
+  var email = document.getElementById('regEmail').value.trim();
+  var role = document.querySelector('input[name="regRole"]:checked').value;
+  var msg = document.getElementById('modalMsg');
+  if (!username || !password) { msg.className='modal-msg error'; msg.textContent='请输入用户名和密码'; return; }
+  if (!phone) { msg.className='modal-msg error'; msg.textContent='请输入手机号'; return; }
+  if (!/^1[3-9]\d{9}$/.test(phone)) { msg.className='modal-msg error'; msg.textContent='请输入正确的手机号'; return; }
+  if (!email) { msg.className='modal-msg error'; msg.textContent='请输入邮箱'; return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.className='modal-msg error'; msg.textContent='请输入正确的邮箱'; return; }
+  msg.className='modal-msg'; msg.textContent='注册中...';
+  fetch('/api/auth/register', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({username:username, password:password, phone:phone, email:email, role:role})
+  }).then(function(r){return r.json();}).then(function(res){
+    if (res.code === 200) {
+      msg.className='modal-msg success'; msg.textContent='注册成功，请登录';
+      setTimeout(function(){ switchTab('login'); document.getElementById('loginUsername').value=username; }, 800);
+    } else {
+      msg.className='modal-msg error'; msg.textContent=res.message||'注册失败';
+    }
+  }).catch(function(){
+    msg.className='modal-msg error'; msg.textContent='网络错误，请确认服务已启动';
+  });
+}
+document.getElementById('loginModal').addEventListener('click', function(e) {
+  if (e.target === this) closeLogin();
+});
+
+
+// ===== DARK MODE TOGGLE =====
+(function() {
+  var rafId = null;
+  var darkVideo = document.getElementById('bgVideoDark');
+  var lightVideo = document.getElementById('bgVideoLight');
+
+  // FadingVideo 淡入淡出效果（直接修改opacity，仅深色模式下运行）
+  function fade(video, from, to, duration) {
+    if (!video) return;
+    if (rafId !== null) cancelAnimationFrame(rafId);
+    var start = performance.now();
+    function step(now) {
+      var p = Math.min(1, (now - start) / duration);
+      video.style.opacity = String(from + (to - from) * p);
+      rafId = p < 1 ? requestAnimationFrame(step) : null;
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  window.toggleTheme = function() {
+    // 切换前：取消正在进行的fade动画，清除inline opacity让CSS过渡接管
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    if (darkVideo) darkVideo.style.opacity = '';
+    if (lightVideo) lightVideo.style.opacity = '';
+
+    var isDark = document.body.classList.toggle('dark-mode');
+    try { localStorage.setItem('zhkc_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+
+    // 切换后确保两个视频都在播放
+    if (darkVideo && darkVideo.paused) {
+      var p = darkVideo.play();
+      if (p && p.catch) p.catch(function() {});
+    }
+    if (lightVideo && lightVideo.paused) {
+      var p2 = lightVideo.play();
+      if (p2 && p2.catch) p2.catch(function() {});
+    }
+  };
+
+  // 页面加载时恢复主题
+  try {
+    if (localStorage.getItem('zhkc_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+  } catch(e) {}
+
+  // 深色视频 FadingVideo 效果：首帧淡入、结尾前淡出、播完重置循环
+  if (darkVideo) {
+    // 首帧加载完淡入 500ms（仅深色模式下）
+    darkVideo.addEventListener('loadeddata', function() {
+      if (document.body.classList.contains('dark-mode')) {
+        fade(darkVideo, 0, 1, 500);
+      }
+    });
+
+    // 距结尾 0.55s 时淡出 550ms（仅深色模式下）
+    darkVideo.addEventListener('timeupdate', function() {
+      if (document.body.classList.contains('dark-mode') &&
+          isFinite(darkVideo.duration) &&
+          darkVideo.duration - darkVideo.currentTime <= 0.55) {
+        fade(darkVideo, 1, 0, 550);
+      }
+    });
+
+    // 播完重置并淡入 500ms（仅深色模式下）
+    darkVideo.addEventListener('ended', function() {
+      if (document.body.classList.contains('dark-mode')) {
+        darkVideo.currentTime = 0;
+        var p = darkVideo.play();
+        if (p && p.catch) p.catch(function() {});
+        fade(darkVideo, 0, 1, 500);
+      }
+    });
+
+    // 确保深色视频持续播放（预加载，切换时立即可见）
+    darkVideo.addEventListener('pause', function() {
+      var p = darkVideo.play();
+      if (p && p.catch) p.catch(function() {});
+    });
+  }
+})();
+</script>
+</body>
+</html>
